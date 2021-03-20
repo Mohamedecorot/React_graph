@@ -30,7 +30,7 @@ class Clock extends React.Component {
   }
 
   componentWillUnmount() {
-    window.clearInterval(this.timer);
+    window.clearInterval(this.state.timer);
   }
 
   tick() {
@@ -50,16 +50,15 @@ class Clock extends React.Component {
 class Incrementer extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { n: props.start };
-    this.timer = null;
+    this.state = { n: props.start, timer: null };
   }
 
   componentDidMount() {
-    window.setInterval(this.increment.bind(this), 1000);
+    this.play();
   }
 
   componentWillUnmount() {
-    window.clearInterval(this.timer);
+    this.pause();
   }
 
   increment() {
@@ -68,8 +67,37 @@ class Incrementer extends React.Component {
     });
   }
 
+  pause() {
+    window.clearInterval(this.state.timer);
+    this.setState({
+      timer: null,
+    });
+  }
+
+  play() {
+    this.setState({
+      timer: window.setInterval(this.increment.bind(this), 1000),
+    });
+  }
+
+  reset() {
+    this.pause;
+    this.play;
+    this.setState((state, props) => ({ n: props.start }));
+  }
+
   render() {
-    return <div>Valeur : {this.state.n}</div>;
+    return (
+      <div>
+        Valeur : {this.state.n}
+        {this.state.timer ? (
+          <button onClick={this.pause.bind(this)}>Pause</button>
+        ) : (
+          <button onClick={this.play.bind(this)}>Lecture</button>
+        )}
+        <button onClick={this.reset.bind(this)}>Réinitialiser</button>
+      </div>
+    );
   }
 }
 
@@ -77,6 +105,29 @@ Incrementer.defaultProps = {
   start: 0,
   step: 1,
 };
+
+class ManualIncrementer extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { n: 0 };
+  }
+
+  increment(e) {
+    e.preventDefault();
+    this.setState(function (state, props) {
+      return { n: this.state.n + 1 };
+    });
+  }
+
+  render() {
+    return (
+      <div>
+        Valeur : {this.state.n}{" "}
+        <button onClick={this.increment.bind(this)}>Incrémenter</button>
+      </div>
+    );
+  }
+}
 
 function Home() {
   return (
@@ -86,6 +137,7 @@ function Home() {
       <Clock />
       <Incrementer start={10} />
       <Incrementer start={100} step={10} />
+      <ManualIncrementer />
     </div>
   );
 }
